@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  Resources needed to continuously onboard all the AWS accounts under one Organization to CloudGuard
+
+####################################################################################
+Parameters:
+  LambdaRate:
+    Description: >
+      The rate (frequency) that determines when CloudWatch Events runs the rule that
+      triggers the Lambda function.
+    Default: rate(1 hour)
+    AllowedValues:
+      - rate(1 hour)
+      - rate(1 day)
+      - rate(7 days)
+    Type: String
+
+  CloudGuardAPIID:
+    Description: >
+      The CloudGuard Service Access ID to use
+    Type: String
+  
+  CloudGuardAPISecret:
+    Description: >
+      The CloudGuard Service Access Key to use
+    Type: String
+  
+  OrganizationRole:
+    Description: >
+      The IAM Role name to assume in each child account
+    Default: OrganizationAccountAccessRole
+    Type: String  
+
+  CloudGuardMode:
+    Description: >
+      CloudGuard mode to onboard your AWS accounts as
+    Default: readonly
+    AllowedValues:
+      - readonly
+      - readwrite
+    Type: String
+  
+  CloudGuardRegion:
+    Description: >
+      Where does your CloudGuard Tenant reside?
+    Default: Europe
+    AllowedValues:
+      - Europe
+      - America
+    Type: String
+
+####################################################################################
+Resources:
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: CloudGuardOnboardingRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSOrganizationsReadOnlyAccess
+        - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CloudGuardAssumePolicy
+          PolicyDocument: 
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:*
+                Resource: '*'
+
+  LambdaSchedule:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name: CloudGuardOnboardingSchedule
+      Description: >
+        A schedule for the CloudGuard Onboarding Lambda function
+      ScheduleExpression: !Ref LambdaRate
+      State: ENABLED
+      Targets:
+        - Arn: !Sub ${LambdaFunction.Arn}
+          Id: LambdaSchedule
+
+  LambdaSchedulePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Sub ${LambdaFunction.Arn}
+      Principal: 'events.amazonaws.com'
+      SourceArn: !Sub ${LambdaSchedule.Arn}
+
+  LambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: CloudGuardOnboardingFunction
+      Description: >
+        Lambda function that onboard account in CloudGuard CSPM
+      Code:
+        S3Bucket: cspm-onboarding
+        S3Key: lambda-onboarding-code.zip
+      Handler: d9_onboard_aws.main
+      MemorySize: 128
+      Role: !Sub ${LambdaExecutionRole.Arn}
+      Runtime: python3.8
+      Timeout: 300
+      Environment:
+        Variables:
+          mode: organizations
+          region_name: eu-west-1
+          d9id: !Ref CloudGuardAPIID
+          d9secret: !Ref CloudGuardAPISecret
+          role_name: !Ref OrganizationRole
+          d9mode: !Ref CloudGuardMode
+          CloudGuardRegion: !Ref CloudGuardRegion
