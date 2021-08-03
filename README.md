@@ -25,7 +25,7 @@ Please insert all the needed parameters to the Stack:
 2. **CloudGuardAPISecret**: The CloudGuard Service Access Key to use
 3. **CloudGuardMode**: CloudGuard mode to onboard your AWS accounts as
 4. **CloudGuardRegion**: Where does your CloudGuard Tenant reside?
-5. **LambdaRate**: The rate (frequency) that determines when CloudWatch Events runs the rule that triggers the Lambda function
+5. **LambdaRate**: The frequency that determines when CloudWatch Events runs the rule that triggers the Lambda function
 6. **OrganizationRole**: The IAM Role name to assume in each child account
 
 ## Architecture Created
