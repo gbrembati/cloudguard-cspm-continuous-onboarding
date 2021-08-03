@@ -1,6 +1,6 @@
 # CloudGuard CSPM AWS Continuous Onboarding
 This project is intended to be used to continuously onboard an AWS Public Cloud Account in CloudGuard CSPM.     
-You can find the CloudFormation Templates JSON files in this folder and the direct link to launch them in your system.     
+You can find the CloudFormation Template JSON files in this folder and the direct link to launch them in your system.     
 The IAM Role created are based on my latest CloudFormation Templates [gbrembati / cloudguard-cspm-aws](https://github.com/gbrembati/cloudguard-cspm-aws) and the lambda code is based from the public Check Point Onboarding Scripts [dome9 / onboarding-scripts](https://github.com/dome9/onboarding-scripts)
  
 ## How to start?
@@ -17,8 +17,7 @@ Remember to copy these two values! You will need to enter them in the Stack Para
 ## How to launch the template
 Either copy the JSON file and then uploaded it to a newly created stack or launch the CloudFormation Templates directly. These are the link to launch them in your AWS Account directly.     
 
-Use these link to Launch the CloudFormation in your AWS root account:    
-Template with Read-Only Permission: [Launch Stack](https://eu-west-1.console.aws.amazon.com/cloudformation/home#/stacks/create/review?stackName=cft-cloudguard-continuous-onboarding&templateURL=https://cspm-onboarding.s3.eu-west-1.amazonaws.com/continous-onboarding-stack.yaml)
+Use these link to Launch the CloudFormation in your AWS root account: [Launch Stack](https://eu-west-1.console.aws.amazon.com/cloudformation/home#/stacks/create/review?stackName=cft-cloudguard-continuous-onboarding&templateURL=https://cspm-onboarding.s3.eu-west-1.amazonaws.com/continous-onboarding-stack.yaml)
 
 ## How to use the Template
 Please insert all the needed parameters to the Stack:
