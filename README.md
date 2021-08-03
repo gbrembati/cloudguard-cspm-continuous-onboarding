@@ -1,5 +1,5 @@
 # CloudGuard CSPM AWS Continuous Onboarding
-This Terraform project is intended to be used to continuously onboard an AWS Public Cloud Account in CloudGuard CSPM.     
+This project is intended to be used to continuously onboard an AWS Public Cloud Account in CloudGuard CSPM.     
 You can find the CloudFormation Templates JSON files in this folder and the direct link to launch them in your system.     
 The IAM Role created are based on my latest CloudFormation Templates [gbrembati / cloudguard-cspm-aws](https://github.com/gbrembati/cloudguard-cspm-aws) and the lambda code is based from the public Check Point Onboarding Scripts [dome9 / onboarding-scripts](https://github.com/dome9/onboarding-scripts)
  
