@@ -296,6 +296,7 @@ def mode_organizations_onboard(orgclient, stsclient, cfclient):
 
     if len(unprotected_account_list) == 0:
         print("No unprotected accounts found.")
+        return 0
         os._exit(1)
     else:
         print(f'\nFound the following unprotected AWS Accounts: ')
@@ -430,7 +431,7 @@ def main(event, context):
     OPTIONS['region_name'] = os.environ.get('region_name')
     OPTIONS['d9mode'] = os.environ.get('d9mode')
     OPTIONS['ignore_ou'] = False
-    OPTIONS['ignore_failures'] = True
+    OPTIONS['ignore_failures'] = os.environ.get('ignore_failures')
 
     OPTIONS = namedtuple("Options", OPTIONS.keys())(*OPTIONS.values())
     
