@@ -50,6 +50,15 @@ Parameters:
       - America
     Type: String
 
+  IgnoreFailure:
+    Description: >
+      Put it as 'True' if you want the Lambda continue the progress if one of the accounts can't be onboarded
+    Default: False
+    AllowedValues:
+      - False
+      - True
+    Type: String
+
 ####################################################################################
 Resources:
   LambdaExecutionRole:
@@ -70,13 +79,23 @@ Resources:
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: CloudGuardAssumePolicy
+        - PolicyName: CloudGuardCustomPolicy
           PolicyDocument: 
             Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
                   - sts:*
+                  - iam:ListPolicies
+                  - iam:GetRole*
+                  - iam:ListRole*
+                  - iam:PutRolePolicy
+                  - iam:CreateRole
+                  - iam:AttachRolePolicy
+                  - iam:CreatePolicy
+                  - cloudformation:List*
+                  - cloudformation:Create*
+                  - cloudformation:Describe*      
                 Resource: '*'
 
   LambdaSchedule:
@@ -116,6 +135,7 @@ Resources:
       Environment:
         Variables:
           mode: organizations
+          ignore_failures: !Ref IgnoreFailure
           region_name: eu-west-1
           d9id: !Ref CloudGuardAPIID
           d9secret: !Ref CloudGuardAPISecret
