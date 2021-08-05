@@ -25,6 +25,7 @@ Parameters:
     Description: >
       The CloudGuard Service Access Key to use
     Type: String
+    NoEcho: true
   
   OrganizationRole:
     Description: >
