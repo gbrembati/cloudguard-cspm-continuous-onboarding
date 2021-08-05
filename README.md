@@ -28,5 +28,6 @@ Please insert all the needed parameters to the Stack:
 6. **OrganizationRole**: The IAM Role name to assume in each child account
 
 ## Architecture Created
-As per this CloudFormation stack the following architecture is then created:     
+As per this CloudFormation stack the following architecture is then created:      
+
 ![AWS Architecture](/zimages/schema-serverless-arch.jpg)
