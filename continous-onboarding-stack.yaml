@@ -50,15 +50,6 @@ Parameters:
       - America
     Type: String
 
-  IgnoreFailure:
-    Description: >
-      Put it as 'True' if you want the Lambda continue the progress if one of the accounts can't be onboarded
-    Default: False
-    AllowedValues:
-      - False
-      - True
-    Type: String
-
 ####################################################################################
 Resources:
   LambdaExecutionRole:
@@ -76,7 +67,6 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSOrganizationsReadOnlyAccess
-        - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: CloudGuardCustomPolicy
@@ -135,7 +125,7 @@ Resources:
       Environment:
         Variables:
           mode: organizations
-          ignore_failures: !Ref IgnoreFailure
+          ignore_failures: False
           region_name: eu-west-1
           d9id: !Ref CloudGuardAPIID
           d9secret: !Ref CloudGuardAPISecret
