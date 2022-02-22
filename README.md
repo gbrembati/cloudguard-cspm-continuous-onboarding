@@ -16,7 +16,7 @@ Remember to copy these two values! You will need to enter them in the Stack Para
 
 ## How to launch the template
 Either copy the JSON file and then uploaded it to a newly created stack or launch the CloudFormation directly.     
-**Use this link** to Launch the CloudFormation in your AWS root account: [Launch Stack](https://eu-west-1.console.aws.amazon.com/cloudformation/home#/stacks/create/review?stackName=cft-cloudguard-continuous-onboarding&templateURL=https://cspm-onboarding.s3.eu-west-1.amazonaws.com/continous-onboarding-stack.yaml)
+**Use this link** to Launch the CloudFormation in your AWS root account:  [<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png">](https://eu-west-1.console.aws.amazon.com/cloudformation/home#/stacks/create/review?stackName=cft-cloudguard-continuous-onboarding&templateURL=https://cspm-onboarding.s3.eu-west-1.amazonaws.com/continous-onboarding-stack.yaml)
 
 ## How to use the Template
 Please insert all the needed parameters to the Stack:
