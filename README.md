@@ -30,4 +30,4 @@ Please insert all the needed parameters to the Stack:
 ## Architecture Created
 As per this CloudFormation stack the following architecture is then created:      
 
-![AWS Architecture](/zimages/schema-serverless-arch.jpg)
+![AWS Architecture](/zimages/schema-serverless-arch-v3.jpg)
