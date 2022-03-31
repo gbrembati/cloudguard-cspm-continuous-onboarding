@@ -156,15 +156,18 @@ def get_cft_stack(cfclient, name):
         return resp[0]
     except ClientError as e:
         print(f'Unexpected error: {e}')
-            
+
 def check_cft_stack_exists(cfclient, name):
     try:
         stacks = cfclient.list_stacks()['StackSummaries']
         for stack in stacks:
-            if stack['StackStatus'] == 'DELETE_COMPLETE':
+            if stack['StackName'] != name:
                 continue
-            if name == stack['StackName']:
-                return True
+            else:
+                if stack['StackStatus'] == 'DELETE_COMPLETE':
+                    continue
+                else:
+                    return True
     except ClientError as e:
         print(f'Unexpected error: {e}')
 
@@ -235,7 +238,10 @@ def process_organizatonal_units(aws_ou_list):
         else:            
             current_d9_parent_ou = current_d9_parent_ou[idx]['children']
     
-    return last_ou
+    if aws_ou_list == []:
+        return True
+    else:
+        return last_ou
 
 def mode_crossaccount_onboard(stsclient):
     assume_role_arn = 'arn:aws:iam::' + OPTIONS.account_number + ':role/' + OPTIONS.role_name # Build role ARN of target account being onboarded to assume into
@@ -333,6 +339,28 @@ def mode_organizations_onboard(orgclient, stsclient, cfclient):
             d9_cloud_account_id = process_account(cfclient, account['name'])
             if d9_cloud_account_id:
                 ou_attached = attach_account_to_ou_in_d9(d9_cloud_account_id, d9_ou_id)
+        ###
+        elif not aws_ou_list and (account['id'] != caller_account_number): #OUs exist and AWS account number is not the callers
+            assume_role_arn = 'arn:aws:iam::' + account['id'] + ':role/' + OPTIONS.role_name # Build role ARN of target account being onboarded to assume into
+            print(f'\nAssuming Role into target account using ARN: {assume_role_arn}') 
+
+            stsresp = stsclient.assume_role(
+             RoleArn=assume_role_arn,
+             RoleSessionName='DeployDome9CFTSession',
+             DurationSeconds=1800
+             )
+            cfclient = boto3.client('cloudformation',
+             aws_access_key_id=stsresp['Credentials']['AccessKeyId'],
+             aws_secret_access_key=stsresp['Credentials']['SecretAccessKey'],
+             aws_session_token=stsresp['Credentials']['SessionToken'],
+             region_name=OPTIONS.region_name
+             )
+
+            d9_ou_id = process_organizatonal_units(aws_ou_list)
+            d9_cloud_account_id = process_account(cfclient, account['name'])
+            if d9_cloud_account_id:
+                ou_attached = attach_account_to_ou_in_d9(d9_cloud_account_id, d9_ou_id)
+        ###
         elif not aws_ou_list: # Account is in AWS Orgs root
             d9_cloud_account_id = process_account(cfclient, account['name'])
 
