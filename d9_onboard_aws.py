@@ -18,10 +18,13 @@ import argparse
 from argparse import RawTextHelpFormatter
 import requests
 import boto3
+import base64
 from botocore.exceptions import ClientError
 import string
 from random import *
 from time import sleep
+from typing import Dict
+
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import HTTPError
 from datetime import datetime
@@ -422,16 +425,15 @@ def http_request(request_type, url, payload, silent):
     # request_type = post/delete/get
     request_type = request_type.lower()
     # silent = True/False
-
     headers = {'content-type': 'application/json'}
     resp = ''
     try:
         if request_type.lower() == 'post':
-            resp = requests.post(url, auth=HTTPBasicAuth(os.environ['d9id'], os.environ['d9secret']), json=payload, headers=headers)
+            resp = requests.post(url, auth=HTTPBasicAuth(d9credentials['AccessId'], d9credentials['Secret']), json=payload, headers=headers)
         elif request_type.lower() == 'delete':
-            resp = requests.delete(url, auth=HTTPBasicAuth(os.environ['d9id'], os.environ['d9secret']), json=payload, headers=headers)
+            resp = requests.delete(url, auth=HTTPBasicAuth(d9credentials['AccessId'], d9credentials['Secret']), json=payload, headers=headers)
         elif request_type.lower() == 'get':
-            resp = requests.get(url, auth=HTTPBasicAuth(os.environ['d9id'], os.environ['d9secret']), json=payload, headers=headers)
+            resp = requests.get(url, auth=HTTPBasicAuth(d9credentials['AccessId'], d9credentials['Secret']), json=payload, headers=headers)
         else:
             print('Request type not supported.')
             return False
@@ -448,11 +450,11 @@ def http_request(request_type, url, payload, silent):
     return resp
 
 def main(event, context):
-    global d9id, d9secret, cft_s3_url, d9readonly, mode, OPTIONS
+    global d9credentials, d9secretname, cft_s3_url, d9readonly, mode, OPTIONS
 
     mode = os.environ.get('mode')
-    d9id = os.environ.get('d9id')
-    d9secret = os.environ.get('d9secret')
+    d9secretname = "CloudGuardAPIKeys"
+    d9credentials = {}
 
     OPTIONS = {}
     OPTIONS['role_name'] = os.environ.get('role_name')
@@ -466,12 +468,25 @@ def main(event, context):
     # load config file
     config = configparser.ConfigParser()
     config.read("./d9_onboard_aws.conf")
-
-    # Get CloudGuard API credentials from env variables
-    if not os.environ.get('d9id') or not os.environ.get('d9id'):
-        print('\nERROR: CloudGuard API credentials not found in environment variables.')
-        os._exit(1)
     
+    secret_manager_client = boto3.client(service_name='secretsmanager',region_name=OPTIONS.region_name)
+
+    try:
+        print('Getting CloudGuard credentials from AWS SecretManager')
+        secret_value_response = secret_manager_client.get_secret_value(SecretId=d9secretname)
+        print(secret_value_response)
+    except Exception as e:
+        print(f"Could not get secret value for SecretId: {d9secretname}. Error: {repr(e)}")
+        raise
+    else:
+        if 'SecretString' in secret_value_response:
+            secret = secret_value_response['SecretString']
+            d9credentials=json.loads(secret)
+            print(d9credentials)
+        else:
+            decoded_binary_secret = base64.b64decode(secret_value_response['SecretBinary'])
+            d9credentials=json.loads(decoded_binary_secret)
+
     # Get AWS creds for the client. Region is needed for CFT deployment location.
     print('\nCreating AWS service clients...\n')
     cfclient = boto3.client('cloudformation', region_name=OPTIONS.region_name)

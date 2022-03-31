@@ -88,6 +88,22 @@ Resources:
                   - cloudformation:Create*
                   - cloudformation:Describe*      
                 Resource: '*'
+        - PolicyName: CloudGuardAPISecretPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                Resource: arn:aws:secretsmanager:*:*:secret:CloudGuardAPIKeys-*
+  
+  CloudGuardAPIKeys:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: String
+      Name: CloudGuardAPIKeys
+      SecretString:
+        !Sub '{"AccessId":"${CloudGuardAPIID}","Secret":"${CloudGuardAPISecret}"}'
 
   LambdaSchedule:
     Type: "AWS::Events::Rule"
@@ -117,7 +133,7 @@ Resources:
         Lambda function that onboard account in CloudGuard CSPM
       Code:
         S3Bucket: cspm-onboarding
-        S3Key: lambda-onboarding-code.zip
+        S3Key: lambda-onboarding-code-v3.zip
       Handler: d9_onboard_aws.main
       MemorySize: 128
       Role: !Sub ${LambdaExecutionRole.Arn}
@@ -128,8 +144,6 @@ Resources:
           mode: organizations
           ignore_failures: False
           region_name: eu-west-1
-          d9id: !Ref CloudGuardAPIID
-          d9secret: !Ref CloudGuardAPISecret
           role_name: !Ref OrganizationRole
           d9mode: !Ref CloudGuardMode
           CloudGuardRegion: !Ref CloudGuardRegion
