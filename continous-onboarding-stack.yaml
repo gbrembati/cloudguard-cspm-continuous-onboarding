@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-  Resources needed to continuously onboard all the AWS accounts under one Organization to CloudGuard
+  Resources needed to continuously onboard all the AWS accounts under one Organization to CloudGuard 
 
 ####################################################################################
 Parameters:
